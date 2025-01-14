@@ -1,0 +1,22 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.95"
+axum = { version = "0.8.1", features = ["macros"] }
+tokio = { version = "1.43.0", features = ["full"] }
+dotenvy = "0.15"
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "chrono"] }
+thiserror = "2.0.11"
+axum-extra = { version = "0.10.0", features = ["query", "typed-header"] }
+jsonwebtoken = "9.3.0"
+serde = { version = "1.0.217", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+reqwest = { version = "0.12.12", features = ["json"] }
+serenity = { version = "0.12.4", default-features = false }
+bitmask-enum = "2.2.5"
+tower-http = { version = "0.6.2", features = ["cors", "trace"] }
+chrono = { version = "0.4.39", features = ["serde"] }

@@ -1,0 +1,27 @@
+CREATE TABLE themes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  author TEXT,
+  css TEXT NOT NULL
+);
+
+CREATE TABLE bans (
+  user_id TEXT PRIMARY KEY NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  reason TEXT,
+  expires DATETIME
+);
+
+CREATE TABLE badges (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  badge TEXT NOT NULL,
+  tooltip TEXT NOT NULL,
+  badge_type TEXT DEFAULT 'donor' NOT NULL
+);
+
+CREATE TABLE users (
+  id TEXT PRIMARY KEY NOT NULL,
+  permissions INTEGER DEFAULT 0 NOT NULL
+);
