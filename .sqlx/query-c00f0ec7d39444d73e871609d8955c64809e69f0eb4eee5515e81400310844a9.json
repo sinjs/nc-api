@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO bans (user_id, reason, expires) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "c00f0ec7d39444d73e871609d8955c64809e69f0eb4eee5515e81400310844a9"
+}

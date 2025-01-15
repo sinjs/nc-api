@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM badges WHERE user_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "user_id",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "badge",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "tooltip",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "badge_type",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e9f93db7078a60f67f98f9307ab45b79b9144261bdad3f3d515613b0eb32ae10"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO badges (user_id, tooltip, badge) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "abc2bbf8087c9a2b3af2b8a1ec3221b41f02a4651b59732f2d9e8febceabc871"
+}
