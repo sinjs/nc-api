@@ -18,7 +18,8 @@ pub async fn get_ban(
     State(state): State<Arc<AppState>>,
     Path(user_id): Path<String>,
 ) -> Result<Json<Ban>, Error> {
-    let ban = sqlx::query_as!(Ban, "SELECT * FROM bans WHERE user_id = ?", user_id)
+    let ban = sqlx::query_as::<_, Ban>("SELECT * FROM bans WHERE user_id = ?")
+        .bind(user_id)
         .fetch_one(&state.db)
         .await?;
 
@@ -31,7 +32,7 @@ pub async fn list_bans(
 ) -> Result<Json<Vec<Ban>>, Error> {
     require_permissions(claims.permissions(), Permissions::ListBans)?;
 
-    let bans = sqlx::query_as!(Ban, "SELECT * FROM bans")
+    let bans = sqlx::query_as::<_, Ban>("SELECT * FROM bans")
         .fetch_all(&state.db)
         .await?;
 
@@ -64,10 +65,10 @@ pub async fn create_ban(
         .execute(&mut *tx)
         .await?;
 
-        let created_ban =
-            sqlx::query_as!(Ban, "SELECT * FROM bans WHERE user_id = ?", body.user_id)
-                .fetch_one(&mut *tx)
-                .await?;
+        let created_ban = sqlx::query_as::<_, Ban>("SELECT * FROM bans WHERE user_id = ?")
+            .bind(body.user_id)
+            .fetch_one(&mut *tx)
+            .await?;
 
         tx.commit().await?;
 
