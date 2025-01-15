@@ -1,7 +1,7 @@
 use api::AppState;
 use axum::{
     extract::{MatchedPath, Request},
-    routing::{delete, get},
+    routing::get,
     Router,
 };
 use tower_http::{cors::CorsLayer, trace::TraceLayer};

@@ -1,8 +1,15 @@
-use std::sync::{Arc, LazyLock};
+use std::{
+    fmt::Debug,
+    str::FromStr,
+    sync::{Arc, LazyLock},
+};
 
 use anyhow::anyhow;
 use error::{Error, Result};
-use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
+use sqlx::{
+    sqlite::{SqliteConnectOptions, SqlitePoolOptions},
+    SqlitePool,
+};
 
 pub mod auth;
 pub mod controllers;
@@ -16,6 +23,7 @@ pub struct Env {
     pub discord_redirect_uri: String,
     pub jwt_secret: String,
     pub database_url: String,
+    pub database_create: bool,
 }
 
 pub static ENV: LazyLock<Env> = LazyLock::new(|| {
@@ -29,9 +37,13 @@ pub static ENV: LazyLock<Env> = LazyLock::new(|| {
         jwt_secret: std::env::var("JWT_SECRET").expect("Missing environment variable `JWT_SECRET`"),
         database_url: std::env::var("DATABASE_URL")
             .expect("Missing environment variable `DATABASE_URL`"),
+        database_create: std::env::var("DATABASE_CREATE")
+            .unwrap_or("false".to_owned())
+            .parse()
+            .expect("Invalid boolean value for environment variable `DATABASE_CREATE` (must be `true` or `false`)"),
     };
 
-    tracing::debug!(?env, "initialized environment");
+    tracing::debug!("lazily initialized environment");
 
     env
 });
@@ -44,7 +56,10 @@ pub struct AppState {
 impl AppState {
     pub async fn create() -> Result<Arc<AppState>> {
         let db = SqlitePoolOptions::new()
-            .connect(&ENV.database_url)
+            .connect_with(
+                SqliteConnectOptions::from_str(&ENV.database_url)?
+                    .create_if_missing(ENV.database_create),
+            )
             .await
             .map_err(|error| Error::Other(anyhow!(error)))?;
 
