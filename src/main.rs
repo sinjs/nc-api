@@ -22,6 +22,11 @@ async fn main() {
 
     let state = AppState::create().await.unwrap();
 
+    sqlx::migrate!("./migrations")
+        .run(&state.db)
+        .await
+        .expect("Failed to run migrations");
+
     let app = Router::new()
         .route("/v2/auth/login", get(api::controllers::auth::login))
         .route(
