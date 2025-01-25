@@ -15,6 +15,7 @@ pub mod auth;
 pub mod controllers;
 pub mod error;
 pub mod models;
+pub mod socket;
 
 #[derive(Debug)]
 pub struct Env {

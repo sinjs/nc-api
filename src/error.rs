@@ -28,6 +28,15 @@ pub enum Error {
     Other(#[from] anyhow::Error),
 }
 
+impl Serialize for Error {
+    fn serialize<S>(&self, serailizer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serailizer.serialize_str(&self.to_string())
+    }
+}
+
 impl From<jsonwebtoken::errors::Error> for Error {
     fn from(_error: jsonwebtoken::errors::Error) -> Self {
         Self::Auth

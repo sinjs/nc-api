@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div>
+      <input type="text" size="150" name="Token" id="token" />
+
+      <button id="connect">Connect</button>
+    </div>
+
+    <div>
+      <button id="listen">Listen</button>
+      <button id="send">Send Message</button>
+    </div>
+    <script type="module">
+      import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+
+      const socket = io("http://localhost:3333/message_forwarding", {
+        autoConnect: false,
+      });
+
+      document.querySelector("#connect").addEventListener("click", () => {
+        const token = document.querySelector("#token").value;
+        socket.auth = {
+          token,
+        };
+        socket.connect();
+      });
+
+      document.querySelector("#listen").addEventListener("click", async () => {
+        const ack = await socket
+          .timeout(5000)
+          .emitWithAck("listen_to_channel", {
+            channelId: "123",
+            ownerId: "7288571626520580096",
+          });
+
+        console.log("Listening to channel 123 owner 1234568:", ack);
+      });
+
+      document.querySelector("#send").addEventListener("click", async () => {
+        const ack = await socket
+          .timeout(5000)
+          .emitWithAck("broadcast_event_in_channel", {
+            channelId: "123",
+            event: {
+              type: "MessageCreate",
+              data: {
+                guild_id: "1234567890",
+                attachments: [],
+                author: {
+                  avatar: "deadbeef",
+                  bot: true,
+                  clan: null,
+                  discriminator: "1234",
+                  id: "1234567890",
+                  primary_guild: null,
+                  username: "Example",
+                  publicFlags: 65536,
+                  avatarDecorationData: null,
+                  globalName: null,
+                },
+                channel_id: "1234567890",
+                channel_type: 0,
+                components: [
+                  {
+                    components: [
+                      {
+                        emoji: {
+                          id: "1234567890",
+                          name: "inviteuser",
+                        },
+                        id: 2,
+                        label: "Join",
+                        style: 5,
+                        type: 2,
+                        url: "https://discord.gg/EXAMPLE",
+                      },
+                      {
+                        custom_id: "server1234567890",
+                        emoji: {
+                          id: "1234567890",
+                          name: "report",
+                        },
+                        id: 3,
+                        label: "Report Advertisement",
+                        style: 4,
+                        type: 2,
+                      },
+                    ],
+                    id: 1,
+                    type: 1,
+                  },
+                ],
+                content: "",
+                edited_timestamp: null,
+                content: "Example",
+                flags: 0,
+                id: "1234567890",
+                member: {
+                  avatar: null,
+                  banner: null,
+                  communication_disabled_until: null,
+                  deaf: false,
+                  flags: 0,
+                  joined_at: "2018-02-21T07:43:38.260000+00:00",
+                  mute: false,
+                  nick: null,
+                  pending: false,
+                  premium_since: null,
+                  roles: ["1234567890"],
+                },
+                mention_everyone: false,
+                mention_roles: [],
+                mentions: [],
+                nonce: "1234567890123456789",
+                pinned: false,
+                timestamp: "2025-01-25T19:58:58.877000+00:00",
+                tts: false,
+                type: 0,
+              },
+            },
+          });
+
+        console.log("Broadcasting:", ack);
+      });
+
+      socket.on("broadcast_event_in_channel", (event) => {
+        console.log("Broadcast Event in Channel:", event);
+      });
+
+      socket.on("connect", async () => {
+        console.log("Connect:", socket.id);
+
+        const ack = await socket
+          .timeout(5000)
+          .emitWithAck("create_virtual_channel", {
+            channelId: "123",
+            allowedUserIds: ["7288571626520580097"],
+          });
+
+        console.log("Created Virtual Channel:", ack);
+      });
+
+      socket.on("connect_error", (error) => {
+        if (socket.active) {
+          console.warn("Socket Disconnected, attempting reconnect");
+        } else {
+          console.error("Connection Denied:", error.message);
+        }
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Disconnect:", socket.id);
+      });
+    </script>
+  </body>
+</html>

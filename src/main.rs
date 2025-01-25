@@ -1,9 +1,10 @@
-use api::AppState;
+use api::{socket::VirtualChannels, AppState};
 use axum::{
     extract::{MatchedPath, Request},
     routing::get,
     Router,
 };
+use socketioxide::{handler::ConnectHandler, SocketIo};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -26,6 +27,16 @@ async fn main() {
         .run(&state.db)
         .await
         .expect("Failed to run migrations");
+
+    let (io_layer, io) = SocketIo::builder()
+        .with_state(VirtualChannels::default())
+        .build_layer();
+
+    io.ns(
+        "/message_forwarding",
+        api::socket::namespaces::message_forwarding::on_connect
+            .with(api::socket::auth::authenticate_middleware),
+    );
 
     let app = Router::new()
         .route("/v2/auth/login", get(api::controllers::auth::login))
@@ -67,6 +78,7 @@ async fn main() {
                 })
                 .on_failure(()),
         )
+        .layer(io_layer)
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3333").await.unwrap();
