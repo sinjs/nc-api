@@ -39,6 +39,7 @@ async fn main() {
     );
 
     let app = Router::new()
+        .route("/health", get(|| async { "ok" }))
         .route("/v2/auth/login", get(api::controllers::auth::login))
         .route(
             "/v2/bans",
