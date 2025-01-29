@@ -5,6 +5,7 @@ use axum::{
     Router,
 };
 use socketioxide::{handler::ConnectHandler, SocketIo};
+use tower::ServiceBuilder;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -32,6 +33,10 @@ async fn main() {
         .with_state(VirtualChannels::default())
         .build_layer();
 
+    let io_layer = ServiceBuilder::new()
+        .layer(CorsLayer::permissive())
+        .layer(io_layer);
+
     io.ns(
         "/message_forwarding",
         api::socket::namespaces::message_forwarding::on_connect
@@ -58,12 +63,7 @@ async fn main() {
             "/v2/badges",
             get(api::controllers::badges::list_badges).post(api::controllers::badges::create_badge),
         )
-        .layer(
-            CorsLayer::new()
-                .allow_headers(tower_http::cors::Any)
-                .allow_origin(tower_http::cors::Any)
-                .allow_methods(tower_http::cors::Any),
-        )
+        .layer(CorsLayer::permissive())
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|req: &Request| {

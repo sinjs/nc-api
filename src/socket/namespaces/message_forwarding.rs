@@ -8,10 +8,11 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serenity::{
     all::{
-        ChannelId, ChannelUpdateEvent, MessageCreateEvent, MessageDeleteEvent, MessageUpdateEvent,
-        ReactionAddEvent, ReactionRemoveEvent, UserId,
+        Channel, ChannelCreateEvent, ChannelId, ChannelUpdateEvent, GuildChannel,
+        MessageCreateEvent, MessageDeleteEvent, MessageUpdateEvent, ReactionAddEvent,
+        ReactionRemoveEvent, UserId,
     },
-    json::Value,
+    json::{self, Value},
 };
 use socketioxide::extract::{AckSender, Data, Extension, SocketRef, State};
 
@@ -24,6 +25,7 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 struct CreateVirtualChannelRequest {
     channel_id: ChannelId,
+    channel_data: GuildChannel,
     allowed_user_ids: Vec<UserId>,
 }
 
@@ -63,6 +65,7 @@ pub fn on_connect(
         |socket: SocketRef,
          Data(CreateVirtualChannelRequest {
              channel_id,
+             channel_data,
              allowed_user_ids,
          }),
          ack: AckSender,
@@ -79,6 +82,7 @@ pub fn on_connect(
 
             let virtual_channel = Arc::new(VirtualChannel {
                 id,
+                channel_data,
                 allowed_user_ids,
             });
 
@@ -157,6 +161,22 @@ pub fn on_connect(
             socket.join(virtual_channel_id.to_string());
 
             ack.send(&Ack::Ok).ok();
+
+            let Ok(channel_update_event) = json::to_value(virtual_channel.channel_data.clone())
+                .and_then(|v| json::from_value::<ChannelUpdateEvent>(v))
+            else {
+                return;
+            };
+
+            socket
+                .emit(
+                    "broadcast_event_in_channel",
+                    &BroadcastEventInChannel {
+                        channel_id: virtual_channel_id.channel_id,
+                        event: BroadcastEvent::ChannelUpdate(channel_update_event),
+                    },
+                )
+                .ok();
         },
     );
 

@@ -21,3 +21,4 @@ bitmask-enum = "2.2.5"
 tower-http = { version = "0.6.2", features = ["cors", "trace"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 socketioxide = { version = "0.16.0", features = ["extensions", "state", "tracing"] }
+tower = "0.5.2"

@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
-use serenity::all::{ChannelId, UserId};
+use serenity::all::{ChannelId, GuildChannel, UserId};
 
 use crate::error::Error;
 
@@ -16,6 +16,7 @@ pub mod namespaces;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VirtualChannel {
     id: VirtualChannelId,
+    channel_data: GuildChannel,
     allowed_user_ids: RwLock<HashSet<UserId>>,
 }
 
