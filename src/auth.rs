@@ -49,9 +49,9 @@ pub enum Permissions {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    sub: String,
-    exp: u64,
-    permissions: i64,
+    pub sub: String,
+    pub exp: u64,
+    pub permissions: i64,
 }
 
 impl Claims {

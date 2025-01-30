@@ -59,7 +59,10 @@ pub fn on_connect(
     Extension::<Arc<Claims>>(claims): Extension<Arc<Claims>>,
     State(_virtual_channels): State<VirtualChannels>,
 ) {
-    tracing::debug!(%socket.id, ?claims, "socket connected");
+    let span = tracing::debug_span!("socket", %socket.id, %claims.sub);
+    let _enter = span.enter();
+
+    tracing::debug!("socket connected");
 
     socket.on(
         "create_virtual_channel",
@@ -87,11 +90,17 @@ pub fn on_connect(
                 allowed_user_ids,
             });
 
+            tracing::debug!(?virtual_channel, "create_virtual_channel");
+            tracing::debug!("before {:?}", socket.rooms());
+
             virtual_channels.add(virtual_channel);
 
             socket.join(room_id);
+            tracing::debug!("after {:?}", socket.rooms());
 
             ack.send(&Ack::Ok).ok();
+
+            tracing::debug!("final (create_virtual_channel)")
         },
     );
 
@@ -159,7 +168,11 @@ pub fn on_connect(
                 return;
             }
 
+            tracing::debug!("before {:?}", socket.rooms());
+
             socket.join(virtual_channel_id.to_string());
+
+            tracing::debug!("after {:?}", socket.rooms());
 
             ack.send(&Ack::Ok).ok();
 
@@ -168,6 +181,8 @@ pub fn on_connect(
             else {
                 return;
             };
+
+            tracing::debug!(?channel_update_event);
 
             socket
                 .emit(
@@ -188,6 +203,7 @@ pub fn on_connect(
          Data(BroadcastEventInChannel { channel_id, event }),
          State::<VirtualChannels>(virtual_channels),
          Extension::<Arc<Claims>>(claims): Extension<Arc<Claims>>| async move {
+            tracing::debug!(%channel_id, ?event, "broadcast_event_in_channel");
             let user_id = UserId::from_str(claims.user_id()).unwrap();
             let virtual_channel_id = VirtualChannelId::from((user_id, channel_id));
 
@@ -219,10 +235,10 @@ pub fn on_connect(
     );
 
     socket.on_disconnect(
-        |socket: SocketRef,
+        |_socket: SocketRef,
          State::<VirtualChannels>(virtual_channels),
          Extension::<Arc<Claims>>(claims): Extension<Arc<Claims>>| async move {
-            tracing::debug!(%socket.id, ?claims, "socket disconnected");
+            tracing::debug!("disconnected");
 
             let owner_id = UserId::from_str(claims.user_id()).unwrap();
             virtual_channels.remove_from_user(&owner_id);
