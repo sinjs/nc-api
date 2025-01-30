@@ -43,6 +43,7 @@ Some events return an acknowledgement. These will be returned in the following f
 - `MessageDelete`
 - `ReactionAdd`
 - `ReactionRemove`
+- `ChannelUpdate`
 
 ### Broadcast Event Object
 
@@ -61,10 +62,11 @@ This event creates a new virtual channel and adds you to the internal state room
 
 #### Data Structure
 
-| Field        | Type        | Description                                              |
-| ------------ | ----------- | -------------------------------------------------------- |
-| channelId    | snowflake   | The Discord Channel ID to broadcast events from          |
-| allowedUsers | snowflake[] | Users that are allowed to listen to this virtual channel |
+| Field        | Type        | Description                                                                            |
+| ------------ | ----------- | -------------------------------------------------------------------------------------- |
+| channelId    | snowflake   | The Discord Channel ID to broadcast events from                                        |
+| channelData  | object      | [Channel Object](https://discord.com/developers/docs/resources/channel#channel-object) |
+| allowedUsers | snowflake[] | Users that are allowed to listen to this virtual channel                               |
 
 ### `delete_virtual_channel`
 
@@ -89,6 +91,9 @@ This event can return the following errors:
 This event can be used to listen to a virtual channel to recieve broadcast events from it. You are
 only allowed to listen to a channel if your User ID is specified in the allowed users list of the
 channel you are trying to listen to.
+
+After acknowledging, a [`broadcast_event_in_channel`](#broadcast_event_in_channel) event with the
+`ChannelUpdate` type will be emitted containg the channel data.
 
 **Note:** This event returns an [acknowledgement](#acknowledgements)
 
