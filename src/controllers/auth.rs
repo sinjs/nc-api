@@ -45,7 +45,8 @@ pub async fn login(
         .fetch_one(&state.db)
         .await?;
 
-    let expires_in = Local::now() + Duration::hours(1);
+    //fixme
+    let expires_in = Local::now() + Duration::days(30);
     let expires = expires_in.timestamp().try_into().unwrap();
 
     let token = Claims::new(&user, expires).encode()?;

@@ -38,11 +38,12 @@ struct DeleteVirtualChannelRequest {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 enum BroadcastEvent {
-    MessageCreate(MessageCreateEvent),
-    MessageUpdate(MessageUpdateEvent),
-    MessageDelete(MessageDeleteEvent),
-    ReactionAdd(ReactionAddEvent),
-    ReactionRemove(ReactionRemoveEvent),
+    // fixme not make it value :3
+    MessageCreate(Value),
+    MessageUpdate(Value),
+    MessageDelete(Value),
+    ReactionAdd(Value),
+    ReactionRemove(Value),
     ChannelUpdate(ChannelUpdateEvent),
 }
 
