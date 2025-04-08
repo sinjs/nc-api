@@ -1,7 +1,7 @@
 use api::{socket::VirtualChannels, AppState};
 use axum::{
     extract::{MatchedPath, Request},
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use socketioxide::{handler::ConnectHandler, SocketIo};
@@ -63,6 +63,7 @@ async fn main() {
             "/v2/badges",
             get(api::controllers::badges::list_badges).post(api::controllers::badges::create_badge),
         )
+        .route("/v2/latex/render", post(api::controllers::latex::render))
         .layer(CorsLayer::permissive())
         .layer(
             TraceLayer::new_for_http()

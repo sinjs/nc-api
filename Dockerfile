@@ -7,6 +7,8 @@ COPY . .
 RUN \
   --mount=type=cache,target=/app/target/ \
   --mount=type=cache,target=/usr/local/cargo/registry/ \
+  apt-get update && \
+  apt-get install -y libfontconfig1-dev libgraphite2-dev libharfbuzz-dev libicu-dev libssl-dev zlib1g-dev && \
   export SQLX_OFFLINE=true && \
   cargo build --release && \
   cp ./target/release/api /
@@ -14,7 +16,7 @@ RUN \
 # Run stage
 FROM debian:bookworm AS final
 RUN apt-get update && \
-  apt-get install -y openssl ca-certificates && \
+  apt-get install -y openssl ca-certificates libfontconfig1-dev libgraphite2-dev libharfbuzz-dev libicu-dev libssl-dev zlib1g-dev && \
   update-ca-certificates
 
 VOLUME ["/app/data"]
